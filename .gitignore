@@ -1,0 +1,20 @@
+# Vivado
+*.jou
+*.log
+*.str
+*.debug
+.Xil/
+*.cache/
+*.hw/
+*.sim/
+*.runs/
+*.gen/
+*.ip_user_files/
+*.xpr
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Paper
+paper/
