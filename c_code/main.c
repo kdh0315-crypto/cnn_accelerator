@@ -4,8 +4,15 @@
 // module
 #include "module/line_buffer.h"
 
+void cnn_reset()
+{
 
+}
 
+void cnn(uint8_t cnn_in, uint8_t weight, uint8_t bias)
+{
+    
+}
 
 
 // Test
