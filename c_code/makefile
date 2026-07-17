@@ -5,11 +5,11 @@ export PATH := $(TOOL_PATH);$(PATH)
 CC      = $(TOOL_PATH)/gcc
 CXX     = $(TOOL_PATH)/g++
 
-CFLAGS   = -Wall -g -O3 -finput-charset=UTF-8 -fexec-charset=UTF-8
+CFLAGS   = -Wall -g -O3 -Imodule -finput-charset=UTF-8 -fexec-charset=UTF-8
 CXXFLAGS = -Wall -g -O3 -finput-charset=UTF-8 -fexec-charset=UTF-8
 TARGET   = main.exe
 
-SRCS_C   = $(wildcard *.c)
+SRCS_C   = $(wildcard *.c) $(wildcard module/*.c)
 SRCS_CPP = $(wildcard *.cpp)
 OBJS     = $(SRCS_C:.c=.o) $(SRCS_CPP:.cpp=.o)
 
