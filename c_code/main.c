@@ -6,6 +6,16 @@
 #include "module/line_buffer.h"
 #include "module/conv.h"
 
+void max_pool_reset()
+{
+
+}
+
+void max_pool()
+{
+
+}
+
 
 void print_window(uint8_t *win_out)
 {
@@ -46,7 +56,6 @@ int main(void)
     // Reset
     line_buf_reset();
     conv_reset();
-
     
     printf("Line Buffer & Convolution layer Test Start\n");
     for (int y = 0; y < IMG_HEIGHT; y++)
