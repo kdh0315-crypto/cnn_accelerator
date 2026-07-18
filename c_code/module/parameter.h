@@ -1,0 +1,4 @@
+#define IMG_WIDTH 28
+#define IMG_HEIGHT 28
+#define IMG_SIZE (IMG_WIDTH * IMG_HEIGHT)
+#define KERNEL_SIZE 3

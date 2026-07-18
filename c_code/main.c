@@ -1,17 +1,37 @@
 #include <stdio.h>
 #include <stdint.h>
+#include "parameter.h"
 
 // module
 #include "module/line_buffer.h"
 
+static int32_t mac;
+
 void cnn_reset()
 {
-
+    mac = 0;
 }
 
-void cnn(uint8_t cnn_in, uint8_t weight, uint8_t bias)
+void conv3x3(int8_t *cnn_in, int8_t *weight, int8_t bias, uint8_t lb_valid, int8_t *cnn_out)
 {
+    if (lb_valid)
+    {
+        // MAC calculation
+        for(int i = 0; i < KERNEL_SIZE*KERNEL_SIZE; i++)
+        {
+            mac += (int32_t)cnn_in[i] * (int32_t)weight[i];
+        }
+        
+        // Bias
+        mac += bias;
+
+        // Output logic
+        // Quantize & Scaling is used
+        *cnn_out = (uint8_t)(mac >> 8);
+    }
     
+    // reset mac value
+    mac = 0;
 }
 
 
