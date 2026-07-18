@@ -4,39 +4,28 @@
 
 // module
 #include "module/line_buffer.h"
+#include "module/conv.h"
 
-static int32_t mac;
 
-void cnn_reset()
+void print_window(uint8_t *win_out)
 {
-    mac = 0;
-}
-
-void conv3x3(int8_t *cnn_in, int8_t *weight, int8_t bias, uint8_t lb_valid, int8_t *cnn_out)
-{
-    if (lb_valid)
+    printf("Line Buffer output - Window\n");
+    for (int i = 0; i < KERNEL_SIZE; i++)
     {
-        // MAC calculation
-        for(int i = 0; i < KERNEL_SIZE*KERNEL_SIZE; i++)
+        for (int j = 0; j < KERNEL_SIZE; j++)
         {
-            mac += (int32_t)cnn_in[i] * (int32_t)weight[i];
+            printf("%d ", win_out[i*KERNEL_SIZE+j]);
         }
-        
-        // Bias
-        mac += bias;
-
-        // Output logic
-        // Quantize & Scaling is used
-        *cnn_out = (uint8_t)(mac >> 8);
+        printf("\n");
     }
-    
-    // reset mac value
-    mac = 0;
 }
 
 
 // Test
 static uint8_t img[IMG_HEIGHT][IMG_WIDTH];
+
+static int8_t test_weight[KERNEL_SIZE * KERNEL_SIZE] = {16,16,16, 16,16,16, 16,16,16};
+static int8_t test_bias = 0;
 
 int main(void)
 {
@@ -44,28 +33,37 @@ int main(void)
     uint8_t win_out[KERNEL_SIZE * KERNEL_SIZE];
     uint8_t lb_valid;
 
+    // conv output
+    uint8_t conv_out;
+
+    int conv_cnt = 0;
+
     // 확인용: 각 픽셀에 (행*100 + 열) 넣기
     for (int y = 0; y < IMG_HEIGHT; y++)
         for (int x = 0; x < IMG_WIDTH; x++)
-            img[y][x] = (uint8_t)(y*10 + x);   // 8bit라 대충
+            img[y][x] = (uint8_t)(y*10 + x);
 
+    // Reset
     line_buf_reset();
+    conv_reset();
 
-    for (int y = 0; y < IMG_HEIGHT; y++) {
-        for (int x = 0; x < IMG_WIDTH; x++) {
+    
+    printf("Line Buffer & Convolution layer Test Start\n");
+    for (int y = 0; y < IMG_HEIGHT; y++)
+    {
+        for (int x = 0; x < IMG_WIDTH; x++)
+        {
             line_buf_push(img[y][x], win_out, &lb_valid);
+            conv3x3(win_out, test_weight, test_bias, lb_valid, &conv_out);
             if (lb_valid) {
-                // 윈도우 중심 = (y-1, x-1)
-                if (y == 2 && x == 3) {   // 첫 유효 윈도우
-                    printf("center=(%d,%d)\n", y-1, x-1);
-                    for (int i = 0; i < 3; i++) {
-                        for (int j = 0; j < 3; j++)
-                            printf("%3d ", win_out[i*3+j]);
-                        printf("\n");
-                    }
-                }
+                printf("%3d ", conv_out);
+                conv_cnt++;
             }
         }
+        printf("\n");
     }
+
+    printf("\nConvolution Calulate for %d times\n", conv_cnt);
+
     return 0;
 }

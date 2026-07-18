@@ -23,7 +23,6 @@ void line_buf_reset(void)
     }
 }
 
-// Main opeeration
 void line_buf_push(uint8_t img_data_in, uint8_t *win_out, uint8_t *lb_valid)
 {
     // first row
@@ -60,5 +59,16 @@ void line_buf_push(uint8_t img_data_in, uint8_t *win_out, uint8_t *lb_valid)
     for (int i = 0; i < KERNEL_SIZE*KERNEL_SIZE; i++)
     {
         win_out[i] = win[i];
+    }
+}
+
+void line_buf_op(uint8_t img_data_in[][IMG_WIDTH], uint8_t *win_out, uint8_t *lb_valid)
+{
+    for (int y = 0; y < IMG_HEIGHT; y++)
+    {
+        for (int x = 0; x < IMG_WIDTH; x++)
+        {
+            line_buf_push(img_data_in[y][x], win_out, lb_valid);
+        }
     }
 }
