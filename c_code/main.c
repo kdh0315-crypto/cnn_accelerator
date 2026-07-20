@@ -6,16 +6,19 @@
 #include "module/line_buffer.h"
 #include "module/conv.h"
 
-void max_pool_reset()
-{
 
+void max_pool(uint8_t *max_in, uint8_t lb_valid, uint8_t *max_out)
+{
+    uint8_t w_max0;
+    uint8_t w_max1;
+
+    w_max0 = (max_in[0] > max_in[1]) ? max_in[0] : max_in[1];
+    w_max1 = (max_in[2] > max_in[3]) ? max_in[2] : max_in[3];
+
+    *max_out = (w_max0 > w_max1) ? w_max0 : w_max1;
 }
 
-void max_pool()
-{
-
-}
-
+void conv_layer(uint8_t *img, uint8_t *conv_valid)
 
 void print_window(uint8_t *win_out)
 {
@@ -39,42 +42,58 @@ static int8_t test_bias = 0;
 
 int main(void)
 {
+    // 확인용: 각 픽셀에 (행*100 + 열) 넣기
+    for (int y = 0; y < MAX_IMG_HEIGHT; y++)
+        for (int x = 0; x < MAX_IMG_WIDTH; x++)
+            img[y][x] = (uint8_t)(y*10 + x);
+
+
     // conv layer 0
     line_buf_t lb_conv0;
     conv_t conv0;
     line_buf_t lb_max0;
 
     // window & line buffer valid signal
-    uint8_t win_out[MAX_KERNEL_SIZE * MAX_KERNEL_SIZE];
-    uint8_t lb_valid;
+    uint8_t lb_valid0;
+    uint8_t conv_win[MAX_KERNEL_SIZE * MAX_KERNEL_SIZE];
+    uint8_t lb_valid1;
+    uint8_t max_win[2 * 2];
 
-    // conv output
+    // output
     uint8_t conv_out0;
+    uint8_t max_out0;
 
     // Init
     line_buf_init(&lb_conv0, 28, 28, 3);
     conv_init(&conv0, 3);
+    line_buf_init(&lb_max0, 26, 26, 2);
 
     int conv_cnt = 0;
-
-    // 확인용: 각 픽셀에 (행*100 + 열) 넣기
-    for (int y = 0; y < MAX_IMG_HEIGHT; y++)
-        for (int x = 0; x < MAX_IMG_WIDTH; x++)
-            img[y][x] = (uint8_t)(y*10 + x);
 
     // Reset
     line_buf_reset(&lb_conv0);
     conv_reset(&conv0);
+    line_buf_reset(&lb_max0);
     
     printf("Line Buffer & Convolution layer Test Start\n");
     for (int y = 0; y < MAX_IMG_HEIGHT; y++)
     {
         for (int x = 0; x < MAX_IMG_WIDTH; x++)
         {
-            line_buf_push(&lb_conv0, img[y][x], win_out, &lb_valid);
-            conv3x3(&conv0, win_out, test_weight, test_bias, lb_valid, &conv_out0);
-            if (lb_valid) {
-                printf("%3d ", conv_out0);
+            line_buf_push(&lb_conv0, img[y][x], conv_win, &lb_valid0);
+            conv3x3(&conv0, conv_win, test_weight, test_bias, lb_valid0, &conv_out0);
+            line_buf_push(&lb_max0, conv_out0, max_win, &lb_valid1);
+            max_pool(max_win, lb_valid1, &max_out0);
+            if (lb_valid1 == 1) {
+                printf("x: %d y: %d", x, y);
+                break;
+            }
+            // if (lb_valid0) {
+            //     printf("%3d ", conv_out0);
+            //     conv_cnt++;
+            // }
+            if (lb_valid1) {
+                printf("%3d ", max_out0);
                 conv_cnt++;
             }
         }
