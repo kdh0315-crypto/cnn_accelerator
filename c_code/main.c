@@ -84,23 +84,25 @@ int main(void)
         {
             line_buf_op(&lb_conv0, img[y][x], lb_conv0_start, conv_win, &lb_valid0);
             conv3x3(&conv0, conv_win, test_weight, test_bias, lb_valid0, &conv_out0);
-            // line_buf_op(&lb_max0, conv_out0, max_win, &lb_valid1);
-            // max_pool(max_win, lb_valid1, &max_out0);
+            line_buf_op(&lb_max0, conv_out0, lb_valid0, max_win, &lb_valid1);
+            max_pool(max_win, lb_valid1, &max_out0);
             // print_window(conv_win);
 
-            if (lb_valid0) {
-                printf("%3d ", conv_out0);
-                conv_cnt++;
-            }
-            // if (lb_valid1) {
-            //     printf("%3d ", max_out0);
+            // if (lb_valid0) {
+            //     printf("%3d ", conv_out0);
             //     conv_cnt++;
             // }
+            if (lb_valid1) {
+                printf("%3d ", max_out0);
+                conv_cnt++;
+            }
         }
-        printf("\n");
+        printf("Line buffer for conv at layer0 : %d\n", lb_valid0);
+        // printf("\n");
     }
 
     printf("\nConvolution Calulate for %d times\n", conv_cnt);
+    printf("Line buffer for conv at layer0 : %d\n", lb_valid0);
 
     return 0;
 }

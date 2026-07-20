@@ -1,12 +1,6 @@
 #include <stdint.h>
 #include "parameter.h"
 
-typedef enum {
-    IDLE,
-    DATA,
-    STOP
-} line_buf_state_t;
-
 typedef struct {
     // input port
     uint8_t lb_start;
@@ -30,10 +24,6 @@ typedef struct {
     uint8_t img_width;
     uint8_t img_height;
     uint8_t kernel_size;
-
-    // State parameter
-    line_buf_state_t c_state;
-    line_buf_state_t n_state;
 } line_buf_t;
 
 void line_buf_init(line_buf_t *ctx, uint32_t img_width, uint32_t img_height, uint32_t kernel_size);
