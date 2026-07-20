@@ -58,7 +58,7 @@ void line_buf_op(line_buf_t *ctx, uint8_t img_data_in, uint8_t lb_start, uint8_t
         ctx->n_row_cnt = ctx->row_cnt + 1;
     }
     
-    if (ctx->row_cnt == ctx->img_height - 1) {
+    if ((ctx->row_cnt == ctx->img_height - 1) && (ctx->col_cnt == ctx->img_width - 1)) {
         ctx->n_row_cnt = 0;
         ctx->n_col_cnt = 0;
     }
