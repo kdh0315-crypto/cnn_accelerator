@@ -3,7 +3,6 @@
 
 typedef enum {
     IDLE,
-    START,
     DATA,
     STOP
 } line_buf_state_t;
@@ -39,4 +38,4 @@ typedef struct {
 
 void line_buf_init(line_buf_t *ctx, uint32_t img_width, uint32_t img_height, uint32_t kernel_size);
 void line_buf_reset(line_buf_t *ctx);
-void line_buf_op(line_buf_t *ctx, uint8_t img_data_in, uint8_t *win_out, uint8_t *lb_valid);
+void line_buf_op(line_buf_t *ctx, uint8_t img_data_in, uint8_t lb_start, uint8_t *win_out, uint8_t *lb_valid);
