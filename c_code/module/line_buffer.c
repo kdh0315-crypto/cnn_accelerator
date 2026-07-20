@@ -1,74 +1,75 @@
 #include "line_buffer.h"
 
-// inner wire
-static uint8_t win[KERNEL_SIZE * KERNEL_SIZE];
-static uint8_t lb0[IMG_WIDTH];
-static uint8_t lb1[IMG_WIDTH];
-static uint8_t row_cnt;
-static uint8_t col_cnt;
+// Initialize line buf
+void line_buf_init(line_buf_t *ctx, uint32_t img_width, uint32_t img_height, uint32_t kernel_size)
+{
+    ctx->img_width = img_width;
+    ctx->img_height = img_height;
+    ctx->kernel_size = kernel_size;
+}
 
 // reset operation
-void line_buf_reset(void)
+void line_buf_reset(line_buf_t *ctx)
 {
-    row_cnt = 0;
-    col_cnt = 0;
-    for (int i = 0; i < IMG_WIDTH; i++) 
+    ctx->row_cnt = 0;
+    ctx->col_cnt = 0;
+    for (int i = 0; i < ctx->img_width; i++) 
     {
-        lb0[i] = 0;
-        lb1[i] = 0;
+        ctx->lb0[i] = 0;
+        ctx->lb1[i] = 0;
     }
-    for (int i = 0; i < KERNEL_SIZE*KERNEL_SIZE; i++)
+    for (int i = 0; i < ctx->kernel_size*ctx->kernel_size; i++)
     {
-        win[i] = 0;
+        ctx->win[i] = 0;
     }
 }
 
-void line_buf_push(uint8_t img_data_in, uint8_t *win_out, uint8_t *lb_valid)
+void line_buf_push(line_buf_t *ctx, uint8_t img_data_in, uint8_t *win_out, uint8_t *lb_valid)
 {
     // first row
-    win[0] = win[1];
-    win[1] = win[2];
-    win[2] = lb0[col_cnt];
+    ctx->win[0] = ctx->win[1];
+    ctx->win[1] = ctx->win[2];
+    ctx->win[2] = ctx->lb0[ctx->col_cnt];
     
     // second row
-    win[3] = win[4];
-    win[4] = win[5];
-    win[5] = lb1[col_cnt];
+    ctx->win[3] = ctx->win[4];
+    ctx->win[4] = ctx->win[5];
+    ctx->win[5] = ctx->lb1[ctx->col_cnt];
 
     // last row
-    win[6] = win[7];
-    win[7] = win[8];
-    win[8] = img_data_in;
+    ctx->win[6] = ctx->win[7];
+    ctx->win[7] = ctx->win[8];
+    ctx->win[8] = img_data_in;
 
     // Update line buffer
-    lb0[col_cnt] = lb1[col_cnt];
-    lb1[col_cnt] = img_data_in;
+    ctx->lb0[ctx->col_cnt] = ctx->lb1[ctx->col_cnt];
+    ctx->lb1[ctx->col_cnt] = img_data_in;
 
     // Make valid signal to check data is available
-    *lb_valid = (row_cnt >= KERNEL_SIZE-1) && (col_cnt >= KERNEL_SIZE-1);
+    *lb_valid = (ctx->row_cnt >= ctx->kernel_size-1) && (ctx->col_cnt >= ctx->kernel_size-1);
 
     // Column count
-    col_cnt++;
-    if (col_cnt == IMG_WIDTH)
+    ctx->col_cnt++;
+    if (ctx->col_cnt == ctx->img_width)
     {
-        col_cnt = 0;
-        row_cnt++;
+        ctx->col_cnt = 0;
+        ctx->row_cnt++;
     }
 
     // Output logic
-    for (int i = 0; i < KERNEL_SIZE*KERNEL_SIZE; i++)
+    for (int i = 0; i < ctx->kernel_size*ctx->kernel_size; i++)
     {
-        win_out[i] = win[i];
+        win_out[i] = ctx->win[i];
     }
 }
 
-void line_buf_op(uint8_t img_data_in[][IMG_WIDTH], uint8_t *win_out, uint8_t *lb_valid)
+void line_buf_op(line_buf_t *ctx, uint8_t img_data_in[][DEFAULT_IMG_WIDTH], uint8_t *win_out, uint8_t *lb_valid)
 {
-    for (int y = 0; y < IMG_HEIGHT; y++)
+    for (int y = 0; y < ctx->img_height; y++)
     {
-        for (int x = 0; x < IMG_WIDTH; x++)
+        for (int x = 0; x < ctx->img_width; x++)
         {
-            line_buf_push(img_data_in[y][x], win_out, lb_valid);
+            line_buf_push(ctx, img_data_in[y][x], win_out, lb_valid);
         }
     }
 }

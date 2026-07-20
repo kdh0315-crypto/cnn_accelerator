@@ -8,7 +8,8 @@
 
 ## 1. 오늘의 목표
 <!-- 작업 시작 전, 오늘 하려던 것을 적습니다 -->
-- [ ] Convolution 연산 및 Max pooling 연산 C 구현
+- [x] Convolution 연산 C 구현
+- [ ] Max pooling 연산 C 구현
 
 ---
 
@@ -46,12 +47,15 @@
 
 ## 4. 결과 및 진척도
 - 완료한 목표: 
+  1. convolution 연산 layer 구현 완료
 - 진행 중: 
 - 보류: 
 
 ---
 
 ## 5. 다음 할 일
+- [ ] Line buffer 및 Convolution 코드 재사용 가능하도록 리팩토링 또 수행
+- [ ] Max pooling 연산 C 구현
 
 ---
 

@@ -1,13 +1,16 @@
 #include "conv.h"
 
-static int32_t mac;
-
-void conv_reset()
+void conv_init(conv_t *ctx, uint32_t kernel_size)
 {
-    mac = 0;
+    ctx->kernel_size = kernel_size;
 }
 
-void conv3x3(uint8_t *cnn_in, int8_t *weight, int8_t bias, uint8_t lb_valid, uint8_t *conv_out)
+void conv_reset(conv_t *ctx)
+{
+    ctx->mac = 0;
+}
+
+void conv3x3(conv_t *ctx, uint8_t *cnn_in, int8_t *weight, int8_t bias, uint8_t lb_valid, uint8_t *conv_out)
 {
     int32_t relu_out;
     int32_t quantized;
@@ -15,20 +18,20 @@ void conv3x3(uint8_t *cnn_in, int8_t *weight, int8_t bias, uint8_t lb_valid, uin
     if (lb_valid)
     {
         // reset mac value
-        mac = 0;
+        ctx->mac = 0;
 
         // MAC calculation
-        for(int i = 0; i < KERNEL_SIZE*KERNEL_SIZE; i++)
+        for(int i = 0; i < ctx->kernel_size*ctx->kernel_size; i++)
         {
-            mac += (int32_t)cnn_in[i] * (int32_t)weight[i];
+            ctx->mac += (int32_t)cnn_in[i] * (int32_t)weight[i];
         }
         
         // Bias
-        mac += bias;
+        ctx->mac += bias;
     }
 
     // Activation function - ReLU
-    relu(mac, &relu_out);
+    relu(ctx->mac, &relu_out);
 
     // Scaling
     quantized = (relu_out >> SCALE_FACTOR);
