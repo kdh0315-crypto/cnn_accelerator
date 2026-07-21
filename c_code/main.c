@@ -35,13 +35,18 @@ int main(void)
 
     uint8_t conv_en = 1;
 
-    ConvLayer_t conv_layer0;
+    ConvLayer_t conv_layer1;
+    ConvLayer_t conv_layer2;
 
-    ConvLayer_Init(&conv_layer0, INPUT_IMG_WIDTH, INPUT_IMG_HEIGHT, CONV0_IMG_WIDTH, CONV0_IMG_HEIGHT);
-    ConvLayer_Reset(&conv_layer0);
+    ConvLayer_Init(&conv_layer1, INPUT_IMG_WIDTH, INPUT_IMG_HEIGHT, CONV0_IMG_WIDTH, CONV0_IMG_HEIGHT);
+    ConvLayer_Init(&conv_layer2, MAX_POOL0_IMG_WIDTH, MAX_POOL0_IMG_HEIGHT, CONV1_IMG_WIDTH, CONV1_IMG_HEIGHT);
+    ConvLayer_Reset(&conv_layer1);
+    ConvLayer_Reset(&conv_layer2);
 
-    uint8_t layer_out;
-    uint8_t valid;
+    uint8_t layer_out1;
+    uint8_t layer_out2;
+    uint8_t valid1;
+    uint8_t valid2;
 
     int conv_cnt = 0;
     int conv_row_cnt = 0;
@@ -56,7 +61,8 @@ int main(void)
     printf("Line Buffer & Convolution layer Test Start\n");
     for (;;)
     {
-        ConvLayer(&conv_layer0, img[i], test_weight, test_bias, conv_en, &layer_out, &valid);
+        ConvLayer(&conv_layer1, img[i], test_weight, test_bias, conv_en, &layer_out1, &valid1);
+        ConvLayer(&conv_layer2, layer_out1, test_weight, test_bias, valid1, &layer_out2, &valid2);
 
 
         // if (conv_valid0) {
@@ -71,8 +77,8 @@ int main(void)
         //     }
         // }
 
-        if (valid) {
-            printf("%3d ", layer_out);
+        if (valid2) {
+            printf("%3d ", layer_out1);
             max_cnt++;
             max_col_cnt++;
             if (max_col_cnt == MAX_POOL0_IMG_WIDTH) {

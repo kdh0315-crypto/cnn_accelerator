@@ -56,6 +56,7 @@ void lineBuf_Maxpool(lineBuf_Maxpool_t *ctx, uint8_t img_data_in, uint8_t lb_sta
     
     // Make valid signal to check data is available
     ctx->lb_valid = (ctx->row_cnt >= MAX_POOL_KERNEL_SIZE-1) && (ctx->col_cnt >= MAX_POOL_KERNEL_SIZE-1);
+    ctx->lb_valid &= (ctx->col_cnt%2 == 1);
     *lb_valid = ctx->lb_valid;
 
 
