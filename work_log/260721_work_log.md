@@ -56,8 +56,8 @@
 ---
 
 ## 5. 다음 할 일
-- [ ] Max pooling과 관련한 오류 디버깅
-- [ ] Convolution 연산 유닛 하드웨어 친화적으로 리팩토링 작업 수행
+- [ ] n channel Convolution layer 코드 작성
+- [ ] Fully Connected layer 설계
 
 ---
 
