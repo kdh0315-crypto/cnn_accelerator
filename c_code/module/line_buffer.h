@@ -49,8 +49,8 @@ typedef struct {
 
 void lineBuf_Maxpool_init(lineBuf_Maxpool_t *ctx, uint32_t img_width, uint32_t img_height);
 void lineBuf_Maxpool_reset(lineBuf_Maxpool_t *ctx);
-void lineBuf_Maxpool_op(lineBuf_Maxpool_t *ctx, uint8_t img_data_in, uint8_t lb_start, uint8_t *win_out, uint8_t *lb_valid);
+void lineBuf_Maxpool(lineBuf_Maxpool_t *ctx, uint8_t img_data_in, uint8_t lb_start, uint8_t *win_out, uint8_t *lb_valid);
 
 void lineBuf_Conv_init(lineBuf_Conv_t *ctx, uint32_t img_width, uint32_t img_height);
 void lineBuf_Conv_reset(lineBuf_Conv_t *ctx);
-void lineBuf_Conv_op(lineBuf_Conv_t *ctx, uint8_t img_data_in, uint8_t lb_start, uint8_t *win_out, uint8_t *lb_valid);
+void lineBuf_Conv(lineBuf_Conv_t *ctx, uint8_t img_data_in, uint8_t lb_start, uint8_t *win_out, uint8_t *lb_valid);
