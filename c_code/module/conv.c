@@ -1,37 +1,40 @@
 #include "conv.h"
 
-void conv_init(conv_t *ctx, uint32_t kernel_size)
+void conv_reset(conv3x3_t *ctx)
 {
-    ctx->kernel_size = kernel_size;
+    ctx->c_mac = 0;
+    ctx->n_mac = 0;
+
+    ctx->conv_valid = 0;
 }
 
-void conv_reset(conv_t *ctx)
+void conv3x3(conv3x3_t *ctx, uint8_t *cnn_in, int8_t *weight, int8_t bias, uint8_t lb_valid, uint8_t *conv_out, uint8_t *conv_valid)
 {
-    ctx->mac = 0;
-}
-
-void conv3x3(conv_t *ctx, uint8_t *cnn_in, int8_t *weight, int8_t bias, uint8_t lb_valid, uint8_t *conv_out)
-{
+    // -------------------------
+    // Combinational
+    // -------------------------
     int32_t relu_out;
     int32_t quantized;
 
-    if (lb_valid)
+    // reset n_mac value - not needed at verilog
+    ctx->n_mac = 0;
+    
+    // MAC calculation
+    for(int i = 0; i < CNN_KERNEL_SIZE*CNN_KERNEL_SIZE; i++)
     {
-        // reset mac value
-        ctx->mac = 0;
-
-        // MAC calculation
-        for(int i = 0; i < ctx->kernel_size*ctx->kernel_size; i++)
-        {
-            ctx->mac += (int32_t)cnn_in[i] * (int32_t)weight[i];
-        }
-        
-        // Bias
-        ctx->mac += bias;
+        ctx->n_mac += (int32_t)cnn_in[i] * (int32_t)weight[i];
     }
+    
+    // Bias
+    ctx->n_mac += bias;
+
+    // valid signal
+    ctx->n_valid = lb_valid;
+
+    // ----- Staging to reduce critical path delay -----
 
     // Activation function - ReLU
-    relu(ctx->mac, &relu_out);
+    relu(ctx->c_mac, &relu_out);
 
     // Scaling
     quantized = (relu_out >> SCALE_FACTOR);
@@ -39,5 +42,13 @@ void conv3x3(conv_t *ctx, uint8_t *cnn_in, int8_t *weight, int8_t bias, uint8_t 
     if (quantized >= 255) quantized = 255;
     
     // Output logic
-    *conv_out = quantized;
+    ctx->conv_out = quantized;
+    *conv_out = ctx->conv_out;
+    *conv_valid = ctx->conv_valid;
+    
+    // -------------------------
+    // Sequential
+    // -------------------------
+    ctx->c_mac = ctx->n_mac;
+    ctx->conv_valid = ctx->n_valid;
 }

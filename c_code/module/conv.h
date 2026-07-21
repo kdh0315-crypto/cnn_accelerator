@@ -5,10 +5,15 @@
 #define SCALE_FACTOR 8
 
 typedef struct {
-    int32_t mac;
-    uint32_t kernel_size;
-} conv_t;
+    // output port
+    uint8_t conv_out;
+    uint8_t conv_valid;
+    
+    // inner wire
+    int32_t c_mac;
+    int32_t n_mac;
+    int32_t n_valid;
+} conv3x3_t;
 
-void conv_init(conv_t *ctx, uint32_t kernel_size);
-void conv_reset(conv_t *ctx);
-void conv3x3(conv_t *ctx, uint8_t *cnn_in, int8_t *weight, int8_t bias, uint8_t lb_valid, uint8_t *conv_out);
+void conv_reset(conv3x3_t *ctx);
+void conv3x3(conv3x3_t *ctx, uint8_t *cnn_in, int8_t *weight, int8_t bias, uint8_t lb_valid, uint8_t *conv_out, uint8_t *conv_valid);
