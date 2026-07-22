@@ -18,7 +18,16 @@
 
 ### 2.1 작업 내용
 
+*기존 conv3x3 -> convFilter로 이름 변경*
+- 이름으로 인해 추후 확장 시에 이름이 명확하지 않아 생기는 문제 방지하고자 수행
+- 이와 관련한 다른 함수 및 변수(ex. lineBuf_Conv_t -> lineBuf_Filter_t)도 이름 유사하게 변경
 
+*출력 Valid 신호가 입력 Valid 신호와 함께 출력되도록 변경*
+- Max pooling의 코드가 Stride 2로 변경됨에 따라 Valid 신호가 한번 출력되면 전 layer의 출력이 항상 유효한 것이 아니게 됨
+- 이에 따라 입력 valid 신호를 관찰하여 이에 맞추어 출력되도록 변경
+```c
+ctx->lb_valid = ctx->lb_start && (ctx->row_cnt >= MAX_POOL_KERNEL_SIZE-1) && (ctx->col_cnt >= MAX_POOL_KERNEL_SIZE-1);
+```
 
 ### 2.2 자료
 <!-- 이미지는 같은 폴더의 images/ 안에 두고 아래처럼 링크합니다 -->

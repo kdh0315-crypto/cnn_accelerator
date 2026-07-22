@@ -1,19 +1,16 @@
 #include <stdint.h>
 #include "parameter.h"
-#include "activation_fn.h"
 
-#define SCALE_FACTOR 8
+#include "line_buffer.h"
+#include "filter.h"
+#include "pooling.h"
 
 typedef struct {
-    // output port
-    uint8_t conv_out;
-    uint8_t conv_valid;
-    
-    // inner wire
-    int32_t c_mac;
-    int32_t n_mac;
-    int32_t n_valid;
-} conv3x3_t;
+    lineBuf_Filter_t lb_filter;
+    convFilter_t filter;
+    lineBuf_Maxpool_t lb_max;
+} conv2D_t;
 
-void conv_reset(conv3x3_t *ctx);
-void conv3x3(conv3x3_t *ctx, uint8_t *cnn_in, int8_t *weight, int8_t bias, uint8_t lb_valid, uint8_t *conv_out, uint8_t *conv_valid);
+void conv2D_Init(conv2D_t *ctx, uint8_t conv_width, uint8_t conv_height, uint8_t max_width, uint8_t max_height);
+void conv2D_Reset(conv2D_t *ctx);
+void conv2D(conv2D_t *ctx, uint8_t img_input, int8_t *weight, int8_t bias, uint8_t conv_en, uint8_t *conv_out, uint8_t *conv_valid);

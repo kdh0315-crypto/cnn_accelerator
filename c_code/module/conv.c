@@ -1,54 +1,47 @@
 #include "conv.h"
 
-void conv_reset(conv3x3_t *ctx)
+void conv2D_Init(conv2D_t *ctx, uint8_t conv_width, uint8_t conv_height, uint8_t max_width, uint8_t max_height)
 {
-    ctx->c_mac = 0;
-    ctx->n_mac = 0;
-
-    ctx->conv_valid = 0;
+    // Init
+    lineBuf_Filter_init(&ctx->lb_filter, conv_width, conv_height);
+    lineBuf_Maxpool_init(&ctx->lb_max, max_width, max_height);
 }
 
-void conv3x3(conv3x3_t *ctx, uint8_t *cnn_in, int8_t *weight, int8_t bias, uint8_t lb_valid, uint8_t *conv_out, uint8_t *conv_valid)
+void conv2D_Reset(conv2D_t *ctx)
+{
+    // Reset
+    lineBuf_Filter_reset(&ctx->lb_filter);
+    convFilter_Reset(&ctx->filter);
+    lineBuf_Maxpool_reset(&ctx->lb_max);
+}
+
+void conv2D(conv2D_t *ctx, uint8_t img_input, int8_t *weight, int8_t bias, uint8_t conv_en, uint8_t *conv_out, uint8_t *conv_valid)
 {
     // -------------------------
-    // Combinational
+    // inner wire
     // -------------------------
-    int32_t relu_out;
-    int32_t quantized;
-
-    // reset n_mac value - not needed at verilog
-    ctx->n_mac = 0;
+    uint8_t filter_out;
+    uint8_t max_out;
     
-    // MAC calculation
-    for(int i = 0; i < CNN_KERNEL_SIZE*CNN_KERNEL_SIZE; i++)
-    {
-        ctx->n_mac += (int32_t)cnn_in[i] * (int32_t)weight[i];
-    }
+    // window & conv_valid signal
+    uint8_t filter_win[CNN_KERNEL_SIZE * CNN_KERNEL_SIZE];
+    uint8_t max_win[MAX_POOL_KERNEL_SIZE * MAX_POOL_KERNEL_SIZE];
     
-    // Bias
-    ctx->n_mac += bias;
-
-    // valid signal
-    ctx->n_valid = lb_valid;
-
-    // ----- Staging to reduce critical path delay -----
-
-    // Activation function - ReLU
-    relu(ctx->c_mac, &relu_out);
-
-    // Scaling
-    quantized = (relu_out >> SCALE_FACTOR);
-    // Quantize
-    if (quantized >= 255) quantized = 255;
-    
-    // Output logic
-    ctx->conv_out = quantized;
-    *conv_out = ctx->conv_out;
-    *conv_valid = ctx->conv_valid;
+    uint8_t lb_filter_valid;
+    uint8_t filter_valid;
+    uint8_t lb_max_valid;
     
     // -------------------------
-    // Sequential
+    // Module
     // -------------------------
-    ctx->c_mac = ctx->n_mac;
-    ctx->conv_valid = ctx->n_valid;
+    lineBuf_Filter(&ctx->lb_filter, img_input, conv_en, filter_win, &lb_filter_valid);
+    convFilter(&ctx->filter, filter_win, weight, bias, lb_filter_valid, &filter_out, &filter_valid);
+    lineBuf_Maxpool(&ctx->lb_max, filter_out, filter_valid, max_win, &lb_max_valid);
+    max_pool(max_win, lb_max_valid, &max_out);
+
+    // -------------------------
+    // Output port
+    // -------------------------
+    *conv_out = max_out;
+    *conv_valid = lb_max_valid;
 }

@@ -8,7 +8,7 @@
 
 ## 1. 오늘의 목표
 <!-- 작업 시작 전, 오늘 하려던 것을 적습니다 -->
-- [ ] Line buffer 및 Convolution 코드 재사용 가능하도록 리팩토링 또 수행
+- [ ] Line buffer 및 Convolution 코드 재사용 가능하도록 리팩토링 다시 수행
 - [ ] Max pooling 연산 C 구현
 
 ---

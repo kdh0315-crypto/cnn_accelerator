@@ -55,8 +55,8 @@ void lineBuf_Maxpool(lineBuf_Maxpool_t *ctx, uint8_t img_data_in, uint8_t lb_sta
     }
     
     // Make valid signal to check data is available
-    ctx->lb_valid = (ctx->row_cnt >= MAX_POOL_KERNEL_SIZE-1) && (ctx->col_cnt >= MAX_POOL_KERNEL_SIZE-1);
-    ctx->lb_valid &= (ctx->col_cnt%2 == 1);
+    ctx->lb_valid = ctx->lb_start && (ctx->row_cnt >= MAX_POOL_KERNEL_SIZE-1) && (ctx->col_cnt >= MAX_POOL_KERNEL_SIZE-1);
+    ctx->lb_valid &= (ctx->col_cnt%2 == 1) && (ctx->row_cnt%2 == 1); // At verilog, use col_cnt & row_cnt 's LSB
     *lb_valid = ctx->lb_valid;
 
 
@@ -85,14 +85,14 @@ void lineBuf_Maxpool(lineBuf_Maxpool_t *ctx, uint8_t img_data_in, uint8_t lb_sta
 
 
 // Initialize line buf for Convolution operation
-void lineBuf_Conv_init(lineBuf_Conv_t *ctx, uint32_t img_width, uint32_t img_height)
+void lineBuf_Filter_init(lineBuf_Filter_t *ctx, uint32_t img_width, uint32_t img_height)
 {
     ctx->img_width = img_width;
     ctx->img_height = img_height;
 }
 
 // reset operation
-void lineBuf_Conv_reset(lineBuf_Conv_t *ctx)
+void lineBuf_Filter_reset(lineBuf_Filter_t *ctx)
 {
     ctx->row_cnt = 0;
     ctx->col_cnt = 0;
@@ -107,7 +107,7 @@ void lineBuf_Conv_reset(lineBuf_Conv_t *ctx)
     }
 }
 
-void lineBuf_Conv(lineBuf_Conv_t *ctx, uint8_t img_data_in, uint8_t lb_start, uint8_t *win_out, uint8_t *lb_valid)
+void lineBuf_Filter(lineBuf_Filter_t *ctx, uint8_t img_data_in, uint8_t lb_start, uint8_t *win_out, uint8_t *lb_valid)
 {
     // -------------------------------------
     // Combinational
@@ -147,7 +147,7 @@ void lineBuf_Conv(lineBuf_Conv_t *ctx, uint8_t img_data_in, uint8_t lb_start, ui
     }
     
     // Make valid signal to check data is available
-    ctx->lb_valid = (ctx->row_cnt >= CNN_KERNEL_SIZE-1) && (ctx->col_cnt >= CNN_KERNEL_SIZE-1);
+    ctx->lb_valid = ctx->lb_start && (ctx->row_cnt >= CNN_KERNEL_SIZE-1) && (ctx->col_cnt >= CNN_KERNEL_SIZE-1);
     *lb_valid = ctx->lb_valid;
 
 
