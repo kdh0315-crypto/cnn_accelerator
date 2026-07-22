@@ -44,6 +44,7 @@ ctx->lb_valid = ctx->lb_start && (ctx->row_cnt >= MAX_POOL_KERNEL_SIZE-1) && (ct
 
 ## 4. 결과 및 진척도
 - 완료한 목표: 
+  1. 사실상 코드 리팩토링 수행
 - 진행 중: 
 - 보류: 
 
