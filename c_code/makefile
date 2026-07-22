@@ -9,8 +9,8 @@ CFLAGS   = -Wall -g -O3 -Imodule -finput-charset=UTF-8 -fexec-charset=UTF-8
 CXXFLAGS = -Wall -g -O3 -finput-charset=UTF-8 -fexec-charset=UTF-8
 TARGET   = main.exe
 
-SRCS_C   = $(wildcard *.c) $(wildcard module/*.c)
-SRCS_CPP = $(wildcard *.cpp)
+SRCS_C   = $(wildcard *.c) $(wildcard module/*.c) $(wildcard debug/*.c)
+SRCS_CPP = $(wildcard *.cpp) $(wildcard module/*.cpp) $(wildcard debug/*.cpp)
 OBJS     = $(SRCS_C:.c=.o) $(SRCS_CPP:.cpp=.o)
 
 all: $(TARGET)

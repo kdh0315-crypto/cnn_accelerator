@@ -1,3 +1,6 @@
+#ifndef LINE_BUFFER_H
+#define LINE_BUFFER_H
+
 #include <stdint.h>
 #include "parameter.h"
 
@@ -42,6 +45,7 @@ typedef struct {
     uint8_t col_cnt;
     uint8_t n_col_cnt;
 
+
     // parameter
     uint8_t img_width;
     uint8_t img_height;
@@ -54,3 +58,5 @@ void lineBuf_Maxpool(lineBuf_Maxpool_t *ctx, uint8_t img_data_in, uint8_t lb_sta
 void lineBuf_Filter_init(lineBuf_Filter_t *ctx, uint32_t img_width, uint32_t img_height);
 void lineBuf_Filter_reset(lineBuf_Filter_t *ctx);
 void lineBuf_Filter(lineBuf_Filter_t *ctx, uint8_t img_data_in, uint8_t lb_start, uint8_t *win_out, uint8_t *lb_valid);
+
+#endif
