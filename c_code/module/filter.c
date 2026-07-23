@@ -4,11 +4,9 @@ void convFilter_Reset(convFilter_t *ctx)
 {
     ctx->c_mac = 0;
     ctx->n_mac = 0;
-
-    ctx->filter_valid = 0;
 }
 
-void convFilter(convFilter_t *ctx, uint8_t *filter_in, int8_t *weight, int8_t bias, uint8_t lb_valid, uint8_t *filter_out, uint8_t *filter_valid)
+void convFilter(convFilter_t *ctx, uint8_t *filter_in, int8_t *weight, int8_t bias, uint8_t filter_en, uint8_t *filter_out)
 {
     // -------------------------
     // Combinational
@@ -28,9 +26,6 @@ void convFilter(convFilter_t *ctx, uint8_t *filter_in, int8_t *weight, int8_t bi
     // Bias
     ctx->n_mac += bias;
 
-    // valid signal
-    ctx->n_valid = lb_valid;
-
     // ----- Staging to reduce critical path delay -----
 
     // Activation function - ReLU
@@ -43,12 +38,9 @@ void convFilter(convFilter_t *ctx, uint8_t *filter_in, int8_t *weight, int8_t bi
     
     // Output logic
     ctx->filter_out = quantized;
-    *filter_out = ctx->filter_out;
-    *filter_valid = ctx->filter_valid;
-    
+
     // -------------------------
     // Sequential
     // -------------------------
     ctx->c_mac = ctx->n_mac;
-    ctx->filter_valid = ctx->n_valid;
 }

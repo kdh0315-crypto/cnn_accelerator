@@ -1,5 +1,19 @@
 #include "debug_print.h"
 
+void print_window(uint8_t *win_out)
+{
+    printf("Line Buffer output - Window\n");
+    for (int i = 0; i < CNN_KERNEL_SIZE; i++)
+    {
+        for (int j = 0; j < CNN_KERNEL_SIZE; j++)
+        {
+            printf("%3d ", win_out[i*CNN_KERNEL_SIZE+j]);
+        }
+        printf("\n");
+    }
+}
+
+
 // debug: print a row-major uint8_t matrix of fixed width and actual (possibly unexpected) height
 void print_matrix(uint8_t *mat, int width, int height, int expected_height, const char *label)
 {
@@ -31,15 +45,15 @@ void LayerProbe_Init(LayerProbe_t *ctx, int filter_width, int pool_width)
 }
 
 // call once per main-loop cycle for the layer being probed
-void LayerProbe_Step(LayerProbe_t *ctx, conv2D_t *layer, uint8_t layer_out, uint8_t layer_valid)
+void LayerProbe_Step(LayerProbe_t *ctx, uint8_t filter_out, uint8_t filter_valid, uint8_t pool_out, uint8_t pool_valid)
 {
-    // pre-pool (conv/filter) output, exposed via the public conv2D_t.filter fields
-    if (layer->filter.filter_valid) {
+    // pre-pool (conv/filter) output
+    if (filter_valid) {
         if (ctx->filter_rows + 1 > ctx->filter_capacity) {
             ctx->filter_capacity = ctx->filter_rows + 1;
             ctx->filter_buf = realloc(ctx->filter_buf, ctx->filter_capacity * ctx->filter_width * sizeof(uint8_t));
         }
-        ctx->filter_buf[ctx->filter_rows * ctx->filter_width + ctx->filter_col_cnt] = layer->filter.filter_out;
+        ctx->filter_buf[ctx->filter_rows * ctx->filter_width + ctx->filter_col_cnt] = filter_out;
         ctx->filter_col_cnt++;
         if (ctx->filter_col_cnt == ctx->filter_width) {
             ctx->filter_rows++;
@@ -48,12 +62,12 @@ void LayerProbe_Step(LayerProbe_t *ctx, conv2D_t *layer, uint8_t layer_out, uint
     }
 
     // post-pool (final layer) output
-    if (layer_valid) {
+    if (pool_valid) {
         if (ctx->pool_rows + 1 > ctx->pool_capacity) {
             ctx->pool_capacity = ctx->pool_rows + 1;
             ctx->pool_buf = realloc(ctx->pool_buf, ctx->pool_capacity * ctx->pool_width * sizeof(uint8_t));
         }
-        ctx->pool_buf[ctx->pool_rows * ctx->pool_width + ctx->pool_col_cnt] = layer_out;
+        ctx->pool_buf[ctx->pool_rows * ctx->pool_width + ctx->pool_col_cnt] = pool_out;
         ctx->pool_col_cnt++;
         if (ctx->pool_col_cnt == ctx->pool_width) {
             ctx->pool_rows++;

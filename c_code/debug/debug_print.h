@@ -6,7 +6,6 @@
 #include <stdlib.h>
 
 #include "../module/parameter.h"
-#include "../module/conv.h"
 
 // safety upper bound on total main-loop cycles, so a bug that keeps re-asserting
 // valid forever cannot hang this test harness (784 pixels + generous drain margin)
@@ -29,10 +28,12 @@ typedef struct {
     int pool_capacity;
 } LayerProbe_t;
 
+void print_window(uint8_t *win_out);
+
 void print_matrix(uint8_t *mat, int width, int height, int expected_height, const char *label);
 
 void LayerProbe_Init(LayerProbe_t *ctx, int filter_width, int pool_width);
-void LayerProbe_Step(LayerProbe_t *ctx, conv2D_t *layer, uint8_t layer_out, uint8_t layer_valid);
+void LayerProbe_Step(LayerProbe_t *ctx, uint8_t filter_out, uint8_t filter_valid, uint8_t pool_out, uint8_t pool_valid);
 void LayerProbe_Print(LayerProbe_t *ctx, const char *name, int expected_filter_height, int expected_pool_height);
 void LayerProbe_Free(LayerProbe_t *ctx);
 
